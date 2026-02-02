@@ -39,7 +39,11 @@ const routes = [
     ],
   },
   //購物車
-  { path: "/cart", element: <CartLayout />, children: [{ path: "/cart", element: <Cart /> }] },
+  {
+    path: "/cart",
+    element: <CartLayout />,
+    children: [{ index: true, element: <Cart /> }],
+  },
   //後台
   {
     path: "/admin",
