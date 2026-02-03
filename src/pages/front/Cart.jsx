@@ -11,7 +11,9 @@ function Cart() {
         const res = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
         setCartData(res.data.data.carts);
         console.log(res.data.data.carts);
-      } catch (error) {}
+      } catch (error) {
+        alert(error.message);
+      }
     };
     fetchCartData();
   }, []);
@@ -24,8 +26,8 @@ function Cart() {
     <>
       <div className="container mb-5 ">
         <div className="row d-flex justify-content-between">
-          <div className="col-9">
-            <div className="cartSection border">
+          <div className="col-9 ">
+            <div className="cartSection border mb-4">
               <div className="head d-flex justify-content-between py-5 px-5 bg-secondary bg-opacity-25">
                 <h3>購物車</h3>
                 <button type="button">全部刪除</button>
@@ -67,6 +69,30 @@ function Cart() {
                   })}
                 </tbody>
               </table>
+            </div>
+            <div className="addOnSection border">
+              <div className="head d-flex justifify-contetn-start align-items-end">
+                <h3>加購服務</h3>
+                <h5>常一起選購的加購服務</h5>
+              </div>
+              <ul>
+                <li>
+                  <img src="" alt="" />
+                  <div className="content d-flex flex-column justify-content-start">
+                    <h5>到貨換盆</h5>
+                    <h6>專業換盆服務</h6>
+                    <div className="last d-flex justify-content-between ">
+                      <input type="number" defaultValue={1} />
+                      <div className="cta d-flex justify-content-end align-items-center">
+                        <h4>NT$150</h4>
+                        <button type="button">加入</button>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                <li></li>
+                <li></li>
+              </ul>
             </div>
           </div>
           <div className="col-3">
