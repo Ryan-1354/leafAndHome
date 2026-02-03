@@ -5,12 +5,19 @@ const API_PATH = import.meta.env.VITE_API_PATH;
 
 function Cart() {
   const [cartData, setCartData] = useState([]);
+
+  //計算右側訂單內容
+  const subtotal = cartData.reduce((sum, item) => sum + item.total, 0);
+  const shipping = 120;
+  const total = subtotal + shipping;
+
   useEffect(() => {
     const fetchCartData = async () => {
       try {
         const res = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
         setCartData(res.data.data.carts);
         console.log(res.data.data.carts);
+        console.log("res.data", res.data);
       } catch (error) {
         alert(error.message);
       }
@@ -18,9 +25,47 @@ function Cart() {
     fetchCartData();
   }, []);
 
-  const subtotal = cartData.reduce((sum, item) => sum + item.total, 0);
-  const shipping = 120;
-  const total = subtotal + shipping;
+  //updateCart
+  const updateCart = async (cartId, productId, qty = 1) => {
+    const data = {
+      product_id: productId,
+      qty,
+    };
+    try {
+      const res = await axios.put(
+        `${API_BASE}/api/${API_PATH}/cart/${cartId}`,
+        { data },
+      );
+      const res2 = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
+      setCartData(res2.data.data.carts);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  //deletcart
+  const deleteCart = async (cartId) => {
+    try {
+      const res = await axios.delete(
+        `${API_BASE}/api/${API_PATH}/cart/${cartId}`,
+      );
+      const res2 = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
+      setCartData(res2.data.data.carts);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  //deleteCarts
+  const deleteCarts = async () => {
+    try {
+      const res = await axios.delete(`${API_BASE}/api/${API_PATH}/carts`);
+      const res2 = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
+      setCartData(res2.data.data.carts);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
 
   return (
     <>
@@ -30,7 +75,14 @@ function Cart() {
             <div className="cartSection border mb-4">
               <div className="head d-flex justify-content-between py-5 px-5 bg-secondary bg-opacity-25">
                 <h3>購物車</h3>
-                <button type="button">全部刪除</button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    deleteCarts();
+                  }}
+                >
+                  全部刪除
+                </button>
               </div>
               <table className="table table-borderless">
                 <thead>
@@ -50,18 +102,50 @@ function Cart() {
                   {cartData.map((item) => {
                     return (
                       <tr key={item.id}>
-                        <td>
+                        <td className="d-flex align-items-center gap-3">
                           <input type="checkbox" />
                           <img
                             src={item.product.imageUrl}
-                            style={{ height: "100px", objectFit: "cover" }}
+                            style={{
+                              height: "100px",
+                              width: "100px",
+                              objectFit: "cover",
+                            }}
                           />
+                          <div className="name">
+                            <h5>{item.product.titleEn}</h5>
+                            <h6>{item.product.titleZh}</h6>
+                          </div>
                         </td>
-                        <td>{item.product.price}</td>
-                        <td>{item.qty}</td>
-                        <td>{item.total}</td>
-                        <td>
-                          <button type="button">刪除</button>
+                        <td className="align-middle">
+                          NT$ {item.product.price}
+                        </td>
+                        <td className="p-0 align-middle">
+                          <div className="d-flex align-items-center h-100 px-2">
+                            <input
+                              type="number"
+                              className="form-control"
+                              defaultValue={item.qty}
+                              onChange={(e) => {
+                                updateCart(
+                                  item.id,
+                                  item.product_id,
+                                  Number(e.target.value),
+                                );
+                              }}
+                            />
+                          </div>
+                        </td>
+                        <td className="align-middle">NT$ {item.total}</td>
+                        <td className="align-middle">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              deleteCart(item.id);
+                            }}
+                          >
+                            刪除
+                          </button>
                           <button type="button">加入收藏</button>
                         </td>
                       </tr>
@@ -71,13 +155,12 @@ function Cart() {
               </table>
             </div>
             <div className="addOnSection border mb-4">
-              <div className="head d-flex justiffy-contetn-start align-items-end">
+              <div className="head d-flex justiffy-contetn-start align-items-end mb-4">
                 <h3>加購服務</h3>
                 <h5>常一起選購的加購服務</h5>
               </div>
               <ul>
                 <li>
-                  <img src="" alt="" />
                   <div className="content d-flex justify-content-start">
                     <img
                       src="https://static.vecteezy.com/system/resources/thumbnails/008/695/917/small/no-image-available-icon-simple-two-colors-template-for-no-image-or-picture-coming-soon-and-placeholder-illustration-isolated-on-white-background-vector.jpg"
@@ -98,7 +181,6 @@ function Cart() {
                   </div>
                 </li>
                 <li>
-                  <img src="" alt="" />
                   <div className="content d-flex justify-content-start">
                     <img
                       src="https://static.vecteezy.com/system/resources/thumbnails/008/695/917/small/no-image-available-icon-simple-two-colors-template-for-no-image-or-picture-coming-soon-and-placeholder-illustration-isolated-on-white-background-vector.jpg"
@@ -119,7 +201,6 @@ function Cart() {
                   </div>
                 </li>
                 <li>
-                  <img src="" alt="" />
                   <div className="content d-flex justify-content-start">
                     <img
                       src="https://static.vecteezy.com/system/resources/thumbnails/008/695/917/small/no-image-available-icon-simple-two-colors-template-for-no-image-or-picture-coming-soon-and-placeholder-illustration-isolated-on-white-background-vector.jpg"
@@ -142,13 +223,12 @@ function Cart() {
               </ul>
             </div>
             <div className="saved border">
-              <div className="head d-flex justiffy-contetn-start align-items-end">
+              <div className="head d-flex justiffy-contetn-start align-items-end mb-4">
                 <h3>收藏清單</h3>
                 <h5>那些您曾停下來看過的植物</h5>
               </div>
               <ul>
                 <li>
-                  <img src="" alt="" />
                   <div className="content d-flex justify-content-start">
                     <img
                       src="https://static.vecteezy.com/system/resources/thumbnails/008/695/917/small/no-image-available-icon-simple-two-colors-template-for-no-image-or-picture-coming-soon-and-placeholder-illustration-isolated-on-white-background-vector.jpg"
@@ -169,7 +249,6 @@ function Cart() {
                   </div>
                 </li>
                 <li>
-                  <img src="" alt="" />
                   <div className="content d-flex justify-content-start">
                     <img
                       src="https://static.vecteezy.com/system/resources/thumbnails/008/695/917/small/no-image-available-icon-simple-two-colors-template-for-no-image-or-picture-coming-soon-and-placeholder-illustration-isolated-on-white-background-vector.jpg"
